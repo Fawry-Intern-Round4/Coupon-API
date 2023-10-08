@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Validated
-public class CouponDTO {
+public class ReturnedCouponDTO {
 
     @NotBlank(message = "Code is mandatory and should not be blank")
     private String code;

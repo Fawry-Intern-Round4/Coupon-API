@@ -1,27 +1,30 @@
 package com.fawry.couponapi.service.coupon;
 
-import com.fawry.couponapi.entity.Coupon;
-import com.fawry.couponapi.model.dto.CouponDTO;
+import com.fawry.couponapi.model.dto.RequestedCouponDTO;
+import com.fawry.couponapi.model.dto.ReturnedCouponDTO;
 import com.fawry.couponapi.model.dto.OrderRequestDTO;
 
 import java.util.List;
 
 public interface CouponService {
 
-    void create(CouponDTO coupon);
+    ReturnedCouponDTO create(RequestedCouponDTO coupon);
 
-    CouponDTO get(String code);
+    ReturnedCouponDTO get(String code);
 
-    List<CouponDTO> getAll();
+    List<ReturnedCouponDTO> getAll();
 
-    List<CouponDTO> getAllActive();
+    List<ReturnedCouponDTO> getAllActive();
 
     void delete(String code);
 
-    Boolean validate(OrderRequestDTO orderRequestDTO);
+    Boolean validateRequestCoupon(OrderRequestDTO orderRequestDTO);
+
+    void validateCouponCode(String code);
 
     void consume(OrderRequestDTO orderRequestDTO);
 
     String generateCouponCode();
 
+    List<ReturnedCouponDTO> getAll(Boolean isDeleted);
 }

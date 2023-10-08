@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ConsumptionService {
     List<ConsumptionDTO> getAll();
+
+    List<ConsumptionDTO> getConsumptionsByCustomerEmail(String customerEmail);
 }

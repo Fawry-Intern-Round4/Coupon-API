@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface ConsumptionRepository extends JpaRepository<Consumption, Long> {
-    Optional<Consumption> findByOrderId(Long orderId);
 
     List<Consumption> findByCustomerEmail(String customerEmail);
 

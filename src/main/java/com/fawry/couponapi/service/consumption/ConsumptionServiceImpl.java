@@ -19,4 +19,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     public List<ConsumptionDTO> getAll() {
         return consumptionMapper.toDto(consumptionRepository.findAll());
     }
+
+    @Override
+    public List<ConsumptionDTO> getConsumptionsByCustomerEmail(String customerEmail) {
+        return consumptionMapper.toDto(consumptionRepository.findByCustomerEmail(customerEmail));
+    }
 }

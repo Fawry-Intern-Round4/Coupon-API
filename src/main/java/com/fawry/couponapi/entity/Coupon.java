@@ -2,12 +2,12 @@ package com.fawry.couponapi.entity;
 
 import com.fawry.couponapi.entity.enumeration.CouponType;
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
+import org.hibernate.annotations.*;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,6 +15,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE coupon SET deleted = true WHERE id=?")
+@FilterDef(name = "deletedProductFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
+@Filter(name = "deletedProductFilter", condition = "deleted = :isDeleted")
 @Table(name = "coupon", uniqueConstraints = @UniqueConstraint(columnNames = "code"))
 public class Coupon {
     @Id
@@ -40,6 +43,9 @@ public class Coupon {
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private CouponType type;
+
+    @Column(name = "deleted")
+    private Boolean deleted = Boolean.FALSE;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id")

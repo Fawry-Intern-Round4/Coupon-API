@@ -4,9 +4,7 @@ import com.fawry.couponapi.model.dto.ConsumptionDTO;
 import com.fawry.couponapi.service.consumption.ConsumptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,5 +17,11 @@ public class ConsumptionResource {
     @GetMapping
     public List<ConsumptionDTO> getConsumptions() {
         return consumptionService.getAll();
+    }
+
+    @GetMapping("/customer/{customerEmail}")
+    @ResponseBody
+    public List<ConsumptionDTO> getConsumptionsByCustomerEmail(@PathVariable String customerEmail) {
+        return consumptionService.getConsumptionsByCustomerEmail(customerEmail);
     }
 }

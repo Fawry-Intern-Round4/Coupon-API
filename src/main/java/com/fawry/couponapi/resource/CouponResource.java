@@ -1,6 +1,7 @@
 package com.fawry.couponapi.resource;
 
-import com.fawry.couponapi.model.dto.CouponDTO;
+import com.fawry.couponapi.model.dto.RequestedCouponDTO;
+import com.fawry.couponapi.model.dto.ReturnedCouponDTO;
 import com.fawry.couponapi.model.dto.OrderRequestDTO;
 import com.fawry.couponapi.model.response.CustomResponse;
 import com.fawry.couponapi.service.coupon.CouponService;
@@ -22,20 +23,25 @@ public class CouponResource {
 
     @GetMapping
     @ResponseBody
-    public List<CouponDTO> getCoupons() {
+    public List<ReturnedCouponDTO> getCoupons() {
         return couponService.getAll();
+    }
+
+    @GetMapping("/deleted")
+    @ResponseBody
+    public List<ReturnedCouponDTO> getDeletedCoupons() {
+        return couponService.getAll(Boolean.TRUE);
     }
 
     @GetMapping("/{code}")
     @ResponseBody
-    public CouponDTO getCoupon(@PathVariable String code) {
+    public ReturnedCouponDTO getCoupon(@PathVariable String code) {
         return couponService.get(code);
     }
 
     @PostMapping
-    public ResponseEntity<CustomResponse> createCoupon(@Valid @RequestBody CouponDTO couponDTO) {
-        couponService.create(couponDTO);
-        return responseHelper("Coupon created successfully!!", HttpStatus.CREATED);
+    public ReturnedCouponDTO createCoupon(@Valid @RequestBody RequestedCouponDTO couponDTO) {
+        return couponService.create(couponDTO);
     }
 
     @DeleteMapping("/{code}")
@@ -46,7 +52,7 @@ public class CouponResource {
 
     @GetMapping("/active")
     @ResponseBody
-    public List<CouponDTO> getActiveCoupons() {
+    public List<ReturnedCouponDTO> getActiveCoupons() {
         return couponService.getAllActive();
     }
 
@@ -62,12 +68,9 @@ public class CouponResource {
     }
 
     @PutMapping("/validate")
-    public ResponseEntity<CustomResponse> validateCoupon(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
-        Boolean isValid = couponService.validate(orderRequestDTO);
-
-        return Boolean.TRUE.equals(isValid) ?
-                responseHelper("Coupon is valid!!", HttpStatus.OK) :
-                responseHelper("Coupon is not valid!!", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<CustomResponse> validateCoupon(String code) {
+        couponService.validateCouponCode(code);
+        return responseHelper("Coupon validated successfully!!", HttpStatus.OK);
     }
 
     private ResponseEntity<CustomResponse> responseHelper(String message, HttpStatus httpStatus) {
