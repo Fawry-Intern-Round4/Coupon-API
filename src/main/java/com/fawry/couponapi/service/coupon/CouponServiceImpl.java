@@ -72,6 +72,17 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
+    public void deactivate(String code) {
+        Optional<Coupon> coupon = couponRepository.findByCode(code);
+        if (coupon.isPresent()) {
+            coupon.get().setActive(false);
+            couponRepository.save(coupon.get());
+        } else {
+            throw new CouponException("Coupon not found");
+        }
+    }
+
+    @Override
     public Boolean validateRequestCoupon(OrderRequestDTO orderRequestDTO) {
         validateCouponCode(orderRequestDTO.getCode());
         verifyCouponIsNotUsedByCustomer(orderRequestDTO);

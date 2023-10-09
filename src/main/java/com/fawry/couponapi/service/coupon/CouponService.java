@@ -18,6 +18,8 @@ public interface CouponService {
 
     void delete(String code);
 
+    void deactivate(String code);
+
     Boolean validateRequestCoupon(OrderRequestDTO orderRequestDTO);
 
     void validateCouponCode(String code);

@@ -56,6 +56,12 @@ public class CouponResource {
         return couponService.getAllActive();
     }
 
+    @PutMapping("/deactivate/{code}")
+    public ResponseEntity<CustomResponse> deactivateCoupon(@PathVariable String code) {
+        couponService.deactivate(code);
+        return responseHelper("Coupon deactivated successfully!!", HttpStatus.OK);
+    }
+
     @PutMapping("/consume")
     public ResponseEntity<CustomResponse> consumeCoupon(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
         couponService.consume(orderRequestDTO);
