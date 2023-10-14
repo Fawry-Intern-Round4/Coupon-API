@@ -1,6 +1,6 @@
 package com.fawry.couponapi.model.dto;
 
-import com.fawry.couponapi.entity.enumeration.CouponType;
+import com.fawry.couponapi.enumeration.CouponType;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;

@@ -1,8 +1,6 @@
 package com.fawry.couponapi.service.coupon;
 
-import com.fawry.couponapi.model.dto.RequestedCouponDTO;
-import com.fawry.couponapi.model.dto.ReturnedCouponDTO;
-import com.fawry.couponapi.model.dto.OrderRequestDTO;
+import com.fawry.couponapi.model.dto.*;
 
 import java.util.List;
 
@@ -16,7 +14,7 @@ public interface CouponService {
 
     List<ReturnedCouponDTO> getAllActive();
 
-    void delete(String code);
+    List<ReturnedCouponDTO> getAllInActive();
 
     void deactivate(String code);
 
@@ -24,9 +22,10 @@ public interface CouponService {
 
     void validateCouponCode(String code);
 
-    void consume(OrderRequestDTO orderRequestDTO);
+    ConsumptionDTO consume(OrderRequestDTO orderRequestDTO);
 
     String generateCouponCode();
 
-    List<ReturnedCouponDTO> getAll(Boolean isDeleted);
+    ConsumptionDTO testConsume(OrderRequestTestDTO orderRequestDTO);
+
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 @Component
-public interface ExternalCouponMapper {
+public interface RequestedCouponMapper {
     RequestedCouponDTO toDto(Coupon coupon);
 
     List<RequestedCouponDTO> toDto(List<Coupon> coupons);

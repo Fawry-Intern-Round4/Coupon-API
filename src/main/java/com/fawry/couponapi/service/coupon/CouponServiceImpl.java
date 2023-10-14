@@ -2,15 +2,14 @@ package com.fawry.couponapi.service.coupon;
 
 import com.fawry.couponapi.entity.Consumption;
 import com.fawry.couponapi.entity.Coupon;
-import com.fawry.couponapi.entity.enumeration.CouponType;
+import com.fawry.couponapi.enumeration.CouponType;
 import com.fawry.couponapi.exception.CouponException;
 import com.fawry.couponapi.generator.CodeConfig;
 import com.fawry.couponapi.generator.VoucherCodes;
-import com.fawry.couponapi.model.dto.RequestedCouponDTO;
-import com.fawry.couponapi.model.dto.ReturnedCouponDTO;
-import com.fawry.couponapi.model.dto.OrderRequestDTO;
-import com.fawry.couponapi.model.mapper.ExternalCouponMapper;
-import com.fawry.couponapi.model.mapper.InternalCouponMapper;
+import com.fawry.couponapi.model.dto.*;
+import com.fawry.couponapi.model.mapper.ConsumptionMapper;
+import com.fawry.couponapi.model.mapper.RequestedCouponMapper;
+import com.fawry.couponapi.model.mapper.ReturnedCouponMapper;
 import com.fawry.couponapi.repository.ConsumptionRepository;
 import com.fawry.couponapi.repository.CouponRepository;
 import jakarta.persistence.EntityManager;
@@ -30,22 +29,22 @@ import java.util.Optional;
 public class CouponServiceImpl implements CouponService {
     private final CouponRepository couponRepository;
     private final ConsumptionRepository consumptionRepository;
-    private final ExternalCouponMapper externalCouponMapper;
-    private final InternalCouponMapper internalCouponMapper;
-    private final EntityManager entityManager;
+    private final RequestedCouponMapper requestedCouponMapper;
+    private final ReturnedCouponMapper returnedCouponMapper;
+    private final ConsumptionMapper consumptionMapper;
 
     @Override
     public ReturnedCouponDTO create(@Valid RequestedCouponDTO couponDTO) {
-        Coupon couponEntity = externalCouponMapper.toEntity(couponDTO);
+        Coupon couponEntity = requestedCouponMapper.toEntity(couponDTO);
         couponEntity.setCode(generateCouponCode());
         couponRepository.save(couponEntity);
-        return internalCouponMapper.toDto(couponEntity);
+        return returnedCouponMapper.toDto(couponEntity);
     }
 
     @Override
     public ReturnedCouponDTO get(String code) {
         Optional<Coupon> coupon = couponRepository.findByCode(code);
-        return internalCouponMapper.toDto(coupon.orElseThrow(() -> new CouponException("Coupon not found")));
+        return returnedCouponMapper.toDto(coupon.orElseThrow(() -> new CouponException("Coupon not found")));
     }
 
     @Override
@@ -54,21 +53,17 @@ public class CouponServiceImpl implements CouponService {
         if (coupons.isEmpty()) {
             throw new CouponException("No coupons found");
         }
-        return internalCouponMapper.toDto(coupons);
+        return returnedCouponMapper.toDto(coupons);
     }
 
     @Override
     public List<ReturnedCouponDTO> getAllActive() {
-        List<Coupon> coupons = couponRepository.findByActive(true);
-        if (coupons.isEmpty()) {
-            throw new CouponException("No active coupons found");
-        }
-        return internalCouponMapper.toDto(coupons);
+        return activeCouponFilter(true);
     }
 
     @Override
-    public void delete(String code) {
-        couponRepository.deleteByCode(code);
+    public List<ReturnedCouponDTO> getAllInActive() {
+        return activeCouponFilter(false);
     }
 
     @Override
@@ -101,10 +96,41 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public void consume(OrderRequestDTO orderRequestDTO) {
+    public ConsumptionDTO consume(OrderRequestDTO orderRequestDTO) {
         if (Boolean.TRUE.equals(validateRequestCoupon(orderRequestDTO))) {
             applyConsumption(orderRequestDTO);
         }
+
+        return getConsumptionDTO(orderRequestDTO);
+    }
+
+    @Override
+    public ConsumptionDTO testConsume(OrderRequestTestDTO orderRequestTestDTO) {
+        OrderRequestDTO orderRequestDTO = helperOrderRequestDTOConverter(orderRequestTestDTO);
+        validateRequestCoupon(orderRequestDTO);
+
+        return getConsumptionDTO(orderRequestDTO);
+    }
+
+    OrderRequestDTO helperOrderRequestDTOConverter(OrderRequestTestDTO orderRequestTestDTO) {
+        return OrderRequestDTO.builder()
+                .code(orderRequestTestDTO.getCode())
+                .customerEmail(orderRequestTestDTO.getCustomerEmail())
+                .orderPrice(orderRequestTestDTO.getOrderPrice())
+                .orderId(1L)
+                .build();
+    }
+
+    private ConsumptionDTO getConsumptionDTO(OrderRequestDTO orderRequestDTO) {
+        Optional<Consumption> consumption = consumptionRepository.findByOrderIdAndCustomerEmail(
+                orderRequestDTO.getOrderId(),
+                orderRequestDTO.getCustomerEmail()
+        );
+
+        if(consumption.isEmpty()) {
+            throw new CouponException("Can't find the consumption for this order");
+        }
+        return consumptionMapper.toDto(consumption.get());
     }
 
     @Override
@@ -116,14 +142,12 @@ public class CouponServiceImpl implements CouponService {
         return VoucherCodes.generate(config);
     }
 
-    @Override
-    public List<ReturnedCouponDTO> getAll(Boolean isDeleted) {
-        Session session = entityManager.unwrap(Session.class);
-        Filter filter = session.enableFilter("deletedProductFilter");
-        filter.setParameter("isDeleted", isDeleted);
-        List<Coupon> coupons = couponRepository.findAll();
-        session.disableFilter("deletedProductFilter");
-        return internalCouponMapper.toDto(coupons);
+    private List<ReturnedCouponDTO> activeCouponFilter(boolean status) {
+        List<Coupon> coupons = couponRepository.findByActive(status);
+        if (coupons.isEmpty()) {
+            throw new CouponException("No active coupons found");
+        }
+        return returnedCouponMapper.toDto(coupons);
     }
 
     private void updateCoupon(OrderRequestDTO orderRequestDTO) {

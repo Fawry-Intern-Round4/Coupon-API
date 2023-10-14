@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 @Component
-public interface InternalCouponMapper {
+public interface ReturnedCouponMapper {
     ReturnedCouponDTO toDto(Coupon coupon);
 
     List<ReturnedCouponDTO> toDto(List<Coupon> coupons);

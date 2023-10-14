@@ -1,4 +1,4 @@
-package com.fawry.couponapi.entity.enumeration;
+package com.fawry.couponapi.enumeration;
 
 public enum CouponType {
     PERCENTAGE,

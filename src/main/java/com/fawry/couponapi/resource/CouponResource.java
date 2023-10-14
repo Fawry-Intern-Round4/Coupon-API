@@ -1,8 +1,6 @@
 package com.fawry.couponapi.resource;
 
-import com.fawry.couponapi.model.dto.RequestedCouponDTO;
-import com.fawry.couponapi.model.dto.ReturnedCouponDTO;
-import com.fawry.couponapi.model.dto.OrderRequestDTO;
+import com.fawry.couponapi.model.dto.*;
 import com.fawry.couponapi.model.response.CustomResponse;
 import com.fawry.couponapi.service.coupon.CouponService;
 import jakarta.validation.Valid;
@@ -27,12 +25,6 @@ public class CouponResource {
         return couponService.getAll();
     }
 
-    @GetMapping("/deleted")
-    @ResponseBody
-    public List<ReturnedCouponDTO> getDeletedCoupons() {
-        return couponService.getAll(Boolean.TRUE);
-    }
-
     @GetMapping("/{code}")
     @ResponseBody
     public ReturnedCouponDTO getCoupon(@PathVariable String code) {
@@ -44,16 +36,16 @@ public class CouponResource {
         return couponService.create(couponDTO);
     }
 
-    @DeleteMapping("/{code}")
-    public ResponseEntity<CustomResponse> deleteCoupon(@PathVariable String code) {
-        couponService.delete(code);
-        return responseHelper("Coupon deleted successfully!!", HttpStatus.OK);
-    }
-
     @GetMapping("/active")
     @ResponseBody
     public List<ReturnedCouponDTO> getActiveCoupons() {
         return couponService.getAllActive();
+    }
+
+    @GetMapping("/inactive")
+    @ResponseBody
+    public List<ReturnedCouponDTO> getInactiveCoupons() {
+        return couponService.getAllInActive();
     }
 
     @PutMapping("/deactivate/{code}")
@@ -63,9 +55,13 @@ public class CouponResource {
     }
 
     @PutMapping("/consume")
-    public ResponseEntity<CustomResponse> consumeCoupon(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
-        couponService.consume(orderRequestDTO);
-        return responseHelper("Coupon consumed successfully!!", HttpStatus.OK);
+    public ConsumptionDTO consumeCoupon(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
+        return couponService.consume(orderRequestDTO);
+    }
+
+    @GetMapping("/test-consume")
+    public ConsumptionDTO testConsumeCoupon(@Valid @RequestBody OrderRequestTestDTO orderRequestDTO) {
+        return couponService.testConsume(orderRequestDTO);
     }
 
     @GetMapping("/generate")

@@ -12,9 +12,6 @@ import java.util.Optional;
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
     Optional<Coupon> findByCode(String code);
 
-    @Transactional
-    void deleteByCode(String code);
-
     List<Coupon> findByActive(Boolean active);
 
 }
