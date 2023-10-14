@@ -3,6 +3,7 @@ package com.fawry.couponapi.service.coupon;
 import com.fawry.couponapi.entity.Consumption;
 import com.fawry.couponapi.entity.Coupon;
 import com.fawry.couponapi.enumeration.CouponType;
+import com.fawry.couponapi.enumeration.ExceptionMessages;
 import com.fawry.couponapi.exception.CouponException;
 import com.fawry.couponapi.generator.CodeConfig;
 import com.fawry.couponapi.generator.VoucherCodes;
@@ -20,9 +21,13 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import static com.fawry.couponapi.enumeration.ExceptionMessages.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,15 +49,13 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public ReturnedCouponDTO get(String code) {
         Optional<Coupon> coupon = couponRepository.findByCode(code);
-        return returnedCouponMapper.toDto(coupon.orElseThrow(() -> new CouponException("Coupon not found")));
+        return returnedCouponMapper.toDto(coupon.orElseThrow(() -> new CouponException(COUPON_NOT_FOUND.getMessage())));
     }
 
     @Override
     public List<ReturnedCouponDTO> getAll() {
         List<Coupon> coupons = couponRepository.findAll();
-        if (coupons.isEmpty()) {
-            throw new CouponException("No coupons found");
-        }
+
         return returnedCouponMapper.toDto(coupons);
     }
 
@@ -73,7 +76,7 @@ public class CouponServiceImpl implements CouponService {
             coupon.get().setActive(false);
             couponRepository.save(coupon.get());
         } else {
-            throw new CouponException("Coupon not found");
+            throw new CouponException(COUPON_NOT_FOUND.getMessage());
         }
     }
 
@@ -90,8 +93,9 @@ public class CouponServiceImpl implements CouponService {
         if (coupon.isPresent()) {
             verifyCouponIsActive(coupon.get());
             verifyCouponCanBeUsed(coupon.get());
+            verifyCouponNotOutOfDate(coupon.get());
         } else {
-            throw new CouponException("Coupon not found");
+            throw new CouponException(COUPON_NOT_FOUND.getMessage());
         }
     }
 
@@ -127,8 +131,8 @@ public class CouponServiceImpl implements CouponService {
                 orderRequestDTO.getCustomerEmail()
         );
 
-        if(consumption.isEmpty()) {
-            throw new CouponException("Can't find the consumption for this order");
+        if (consumption.isEmpty()) {
+            throw new CouponException(NO_CONSUMPTIONS_FOR_ORDER.getMessage());
         }
         return consumptionMapper.toDto(consumption.get());
     }
@@ -144,9 +148,7 @@ public class CouponServiceImpl implements CouponService {
 
     private List<ReturnedCouponDTO> activeCouponFilter(boolean status) {
         List<Coupon> coupons = couponRepository.findByActive(status);
-        if (coupons.isEmpty()) {
-            throw new CouponException("No active coupons found");
-        }
+
         return returnedCouponMapper.toDto(coupons);
     }
 
@@ -192,13 +194,13 @@ public class CouponServiceImpl implements CouponService {
 
     private void verifyCouponIsActive(Coupon coupon) {
         if (Boolean.FALSE.equals(coupon.getActive())) {
-            throw new CouponException("Coupon is not active currently");
+            throw new CouponException(COUPON_NOT_ACTIVE.getMessage());
         }
     }
 
     private void verifyCouponCanBeUsed(Coupon coupon) {
         if (coupon.getRemainingUsages() == 0) {
-            throw new CouponException("Coupon is fully redeemed");
+            throw new CouponException(COUPON_FULLY_REDEEMED.getMessage());
         }
     }
 
@@ -209,8 +211,13 @@ public class CouponServiceImpl implements CouponService {
         );
 
         if (consumption.isPresent()) {
-            throw new CouponException("Coupon already used by this customer");
+            throw new CouponException(COUPON_USED_BY_CUSTOMER.getMessage());
         }
     }
 
+    private void verifyCouponNotOutOfDate(Coupon coupon) {
+        if (coupon.getExpiryDate().isBefore(LocalDate.now())) {
+            throw new CouponException(COUPON_EXPIRED.getMessage());
+        }
+    }
 }
