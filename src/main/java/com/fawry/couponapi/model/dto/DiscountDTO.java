@@ -15,19 +15,11 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Validated
 
-public class OrderRequestDTO {
-
-    @NotBlank(message = "Code is mandatory and should not be blank")
-    private String code;
-
-    @Email
-    private String customerEmail;
+public class DiscountDTO {
 
     @NotNull
-    @Positive(message = "Value should be positive")
-    private BigDecimal orderPrice;
-
-    @NotNull
-    private Long orderId;
+    @PositiveOrZero
+    private BigDecimal actualDiscount;
 
 }
+

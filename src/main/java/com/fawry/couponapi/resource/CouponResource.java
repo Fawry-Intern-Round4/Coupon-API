@@ -59,14 +59,9 @@ public class CouponResource {
         return couponService.consume(orderRequestDTO);
     }
 
-    @GetMapping("/test-consume")
-    public ConsumptionDTO testConsumeCoupon(@Valid @RequestBody OrderRequestTestDTO orderRequestDTO) {
+    @PutMapping("/test-consume")
+    public DiscountDTO testConsumeCoupon(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
         return couponService.testConsume(orderRequestDTO);
-    }
-
-    @GetMapping("/generate")
-    public String getCouponCode() {
-        return couponService.generateCouponCode();
     }
 
     @PutMapping("/validate")

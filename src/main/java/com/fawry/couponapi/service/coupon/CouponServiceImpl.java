@@ -3,7 +3,6 @@ package com.fawry.couponapi.service.coupon;
 import com.fawry.couponapi.entity.Consumption;
 import com.fawry.couponapi.entity.Coupon;
 import com.fawry.couponapi.enumeration.CouponType;
-import com.fawry.couponapi.enumeration.ExceptionMessages;
 import com.fawry.couponapi.exception.CouponException;
 import com.fawry.couponapi.generator.CodeConfig;
 import com.fawry.couponapi.generator.VoucherCodes;
@@ -13,17 +12,13 @@ import com.fawry.couponapi.model.mapper.RequestedCouponMapper;
 import com.fawry.couponapi.model.mapper.ReturnedCouponMapper;
 import com.fawry.couponapi.repository.ConsumptionRepository;
 import com.fawry.couponapi.repository.CouponRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Filter;
-import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,19 +104,12 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public ConsumptionDTO testConsume(OrderRequestTestDTO orderRequestTestDTO) {
-        OrderRequestDTO orderRequestDTO = helperOrderRequestDTOConverter(orderRequestTestDTO);
+    public DiscountDTO testConsume(OrderRequestDTO orderRequestDTO) {
         validateRequestCoupon(orderRequestDTO);
 
-        return getConsumptionDTO(orderRequestDTO);
-    }
-
-    OrderRequestDTO helperOrderRequestDTOConverter(OrderRequestTestDTO orderRequestTestDTO) {
-        return OrderRequestDTO.builder()
-                .code(orderRequestTestDTO.getCode())
-                .customerEmail(orderRequestTestDTO.getCustomerEmail())
-                .orderPrice(orderRequestTestDTO.getOrderPrice())
-                .orderId(1L)
+        Consumption consumption = prepareConsumption(orderRequestDTO);
+        return DiscountDTO.builder()
+                .actualDiscount(consumption.getActualDiscount())
                 .build();
     }
 
@@ -167,9 +155,13 @@ public class CouponServiceImpl implements CouponService {
     }
 
     private void saveConsumption(OrderRequestDTO orderRequestDTO) {
+        consumptionRepository.save(prepareConsumption(orderRequestDTO));
+    }
+
+    private Consumption prepareConsumption(OrderRequestDTO orderRequestDTO) {
         Coupon coupon = couponRepository.findByCode(orderRequestDTO.getCode()).get();
 
-        Consumption consumption = Consumption.builder()
+        return Consumption.builder()
                 .customerEmail(orderRequestDTO.getCustomerEmail())
                 .orderId(orderRequestDTO.getOrderId())
                 .consumptionDate(LocalDateTime.now())
@@ -180,8 +172,6 @@ public class CouponServiceImpl implements CouponService {
                         coupon.getValue(),
                         coupon.getType()))
                 .build();
-
-        consumptionRepository.save(consumption);
     }
 
     private BigDecimal calculateDiscount(BigDecimal orderPrice, BigDecimal value, CouponType type) {

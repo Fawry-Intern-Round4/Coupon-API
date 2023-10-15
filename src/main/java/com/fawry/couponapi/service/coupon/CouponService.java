@@ -26,6 +26,6 @@ public interface CouponService {
 
     String generateCouponCode();
 
-    ConsumptionDTO testConsume(OrderRequestTestDTO orderRequestDTO);
+    DiscountDTO testConsume(OrderRequestDTO orderRequestDTO);
 
 }
