@@ -12,20 +12,18 @@ public interface CouponService {
 
     List<ReturnedCouponDTO> getAll();
 
-    List<ReturnedCouponDTO> getAllActive();
+    List<ReturnedCouponDTO> getAll(Boolean isActive);
 
-    List<ReturnedCouponDTO> getAllInActive();
+    ReturnedCouponDTO deactivate(String code);
 
-    void deactivate(String code);
+    ReturnedCouponDTO activate(String code);
 
-    Boolean validateRequestCoupon(OrderRequestDTO orderRequestDTO);
-
-    void validateCouponCode(String code);
+    void checkCouponCode(ValidationRequestDto validationRequestDto);
 
     ConsumptionDTO consume(OrderRequestDTO orderRequestDTO);
 
     String generateCouponCode();
 
-    DiscountDTO testConsume(OrderRequestDTO orderRequestDTO);
+    DiscountDTO calculateDiscount(OrderRequestDTO orderRequestDTO);
 
 }

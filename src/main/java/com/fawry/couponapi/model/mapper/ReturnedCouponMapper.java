@@ -14,7 +14,4 @@ public interface ReturnedCouponMapper {
 
     List<ReturnedCouponDTO> toDto(List<Coupon> coupons);
 
-    Coupon toEntity(ReturnedCouponDTO couponDto);
-
-    List<Coupon> toEntity(List<ReturnedCouponDTO> couponDto);
 }

@@ -3,45 +3,45 @@ package com.fawry.couponapi.entity;
 import com.fawry.couponapi.enumeration.CouponType;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
-@Data
+@Table(name = "coupon")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "coupon", uniqueConstraints = @UniqueConstraint(columnNames = "code"))
+@Getter
+@Setter
 public class Coupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "code", unique = true, nullable = false)
+    @NotBlank(message = "Code is mandatory and should not be blank")
     private String code;
 
-    @Column(name = "remaining_usages", nullable = false)
+    @NotNull
+    @Digits(integer = 10, fraction = 0, message = "Remaining usages must be integer")
+    @PositiveOrZero(message = "Remaining usages should be positive or zero")
     private Integer remainingUsages;
 
-    @Column(name = "expiry_date", columnDefinition = "DATE", nullable = false)
+    @NotNull(message = "Expiry date is mandatory")
+    @FutureOrPresent(message = "Expiry date can't be in the past")
     private LocalDate expiryDate;
 
-    @Column(name = "value", nullable = false)
+    @NotNull(message = "Value is mandatory")
+    @Positive(message = "Value should be positive")
     private BigDecimal value;
 
-    @Column(name = "active")
+    @NotNull(message = "Active is mandatory")
     private Boolean active = true;
 
-    @Column(name = "type")
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Type is mandatory")
     private CouponType type;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id")
-    private List<Consumption> consumptions;
 
 }

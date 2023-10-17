@@ -11,7 +11,7 @@ public enum ExceptionMessages {
     COUPON_USED_BY_CUSTOMER("Coupon is already used by this customer"),
     COUPON_EXPIRED("Coupon has expired"),
     COUPON_FULLY_REDEEMED("Coupon is fully redeemed"),
-    NO_CONSUMPTIONS_FOR_ORDER("There's no consumption for this order");
-
+    NO_CONSUMPTIONS_FOR_ORDER("There's no consumption for this order"),
+    PERCENTAGE_VALUE_EXCEEDS_100("Percentage value exceeds 100");
     private final String message;
 }

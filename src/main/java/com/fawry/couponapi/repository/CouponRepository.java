@@ -1,7 +1,6 @@
 package com.fawry.couponapi.repository;
 
 import com.fawry.couponapi.entity.Coupon;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

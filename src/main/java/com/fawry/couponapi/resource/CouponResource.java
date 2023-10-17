@@ -1,84 +1,74 @@
 package com.fawry.couponapi.resource;
 
 import com.fawry.couponapi.model.dto.*;
-import com.fawry.couponapi.model.response.CustomResponse;
 import com.fawry.couponapi.service.coupon.CouponService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/coupons")
+@RequestMapping("/coupon")
 public class CouponResource {
     private final CouponService couponService;
 
-    @GetMapping
-    @ResponseBody
-    public List<ReturnedCouponDTO> getCoupons() {
-        return couponService.getAll();
-    }
-
-    @GetMapping("/{code}")
-    @ResponseBody
-    public ReturnedCouponDTO getCoupon(@PathVariable String code) {
-        return couponService.get(code);
-    }
-
     @PostMapping
+    @ResponseStatus(code = HttpStatus.CREATED)
     public ReturnedCouponDTO createCoupon(@Valid @RequestBody RequestedCouponDTO couponDTO) {
         return couponService.create(couponDTO);
     }
 
-    @GetMapping("/active")
-    @ResponseBody
-    public List<ReturnedCouponDTO> getActiveCoupons() {
-        return couponService.getAllActive();
+    @GetMapping
+    public List<ReturnedCouponDTO> getCoupons(@RequestParam(required = false) Boolean isActive) {
+        if (isActive == null) {
+            return couponService.getAll();
+        }
+        return couponService.getAll(isActive);
     }
 
-    @GetMapping("/inactive")
-    @ResponseBody
-    public List<ReturnedCouponDTO> getInactiveCoupons() {
-        return couponService.getAllInActive();
+    @GetMapping("/{code}")
+    public ReturnedCouponDTO getCoupon(@PathVariable String code) {
+        return couponService.get(code);
     }
 
-    @PutMapping("/deactivate/{code}")
-    public ResponseEntity<CustomResponse> deactivateCoupon(@PathVariable String code) {
-        couponService.deactivate(code);
-        return responseHelper("Coupon deactivated successfully!!", HttpStatus.OK);
+    @PutMapping("/deactivation/{code}")
+    public ReturnedCouponDTO deactivateCoupon(@PathVariable String code) {
+        return couponService.deactivate(code);
     }
 
-    @PutMapping("/consume")
+    @PutMapping("/activation/{code}")
+    public ReturnedCouponDTO activateCoupon(@PathVariable String code) {
+        return couponService.activate(code);
+    }
+
+    @GetMapping("/validation")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void validateCoupon(@RequestParam String code, @RequestParam String customerEmail) {
+        ValidationRequestDto validationRequestDto = ValidationRequestDto.builder()
+                .code(code)
+                .customerEmail(customerEmail)
+                .build();
+        couponService.checkCouponCode(validationRequestDto);
+    }
+
+    @GetMapping("/discount")
+    public DiscountDTO calculateDiscount(@RequestParam String code, @RequestParam String customerEmail,
+                                         @RequestParam Long orderId, @RequestParam BigDecimal orderPrice) {
+        OrderRequestDTO orderRequestDTO = OrderRequestDTO.builder()
+                .code(code)
+                .customerEmail(customerEmail)
+                .orderId(orderId)
+                .orderPrice(orderPrice)
+                .build();
+        return couponService.calculateDiscount(orderRequestDTO);
+    }
+
+    @PostMapping("/consumption")
     public ConsumptionDTO consumeCoupon(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
         return couponService.consume(orderRequestDTO);
-    }
-
-    @PutMapping("/test-consume")
-    public DiscountDTO testConsumeCoupon(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
-        return couponService.testConsume(orderRequestDTO);
-    }
-
-    @PutMapping("/validate")
-    public ResponseEntity<CustomResponse> validateCoupon(String code) {
-        couponService.validateCouponCode(code);
-        return responseHelper("Coupon validated successfully!!", HttpStatus.OK);
-    }
-
-    private ResponseEntity<CustomResponse> responseHelper(String message, HttpStatus httpStatus) {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss a"));
-
-        CustomResponse errorResponse = CustomResponse.builder()
-                .status(httpStatus.value())
-                .message(message)
-                .timestamp(timestamp)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, httpStatus);
     }
 }

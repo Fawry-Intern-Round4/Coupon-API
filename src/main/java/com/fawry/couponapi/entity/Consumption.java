@@ -1,44 +1,43 @@
 package com.fawry.couponapi.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
-@Data
+@Table(name = "consumption")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "consumption")
+@Getter
+@Setter
 public class Consumption {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "consumption_date", columnDefinition = "TIMESTAMP")
-    private LocalDateTime consumptionDate;
+    @CreationTimestamp
+    private Instant consumptionDate;
 
-    @Column(name = "order_id", nullable = false)
+    @NotNull(message = "Order id is mandatory")
     private Long orderId;
 
-    @Column(name = "customer_email", nullable = false)
+    @NotNull(message = "Customer email is mandatory")
+    @Email(message = "Customer email should be valid")
     private String customerEmail;
 
-    @Column(name = "order_price", nullable = false)
-    private BigDecimal orderPrice;
-
-    @Column(name = "actual_discount", nullable = false)
+    @NotNull(message = "Actual discount is mandatory")
+    @Positive(message = "Actual discount should be positive")
     private BigDecimal actualDiscount;
 
-    @Column(name = "coupon_id", nullable = false)
-    private Long couponId;
+    @ManyToOne
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
 }

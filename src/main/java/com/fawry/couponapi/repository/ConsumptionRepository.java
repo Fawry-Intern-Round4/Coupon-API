@@ -12,5 +12,5 @@ public interface ConsumptionRepository extends JpaRepository<Consumption, Long> 
 
     List<Consumption> findByCustomerEmail(String customerEmail);
 
-    Optional<Consumption> findByOrderIdAndCustomerEmail(Long orderId, String customerEmail);
+    Optional<Consumption> findByCoupon_IdAndCustomerEmail(Long id, String customerEmail);
 }

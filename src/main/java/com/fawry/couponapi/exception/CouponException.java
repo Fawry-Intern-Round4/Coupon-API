@@ -1,21 +1,13 @@
 package com.fawry.couponapi.exception;
 
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
 public class CouponException extends RuntimeException {
-    public CouponException() {}
-
-    public CouponException(String message) {
+    private final HttpStatus statusCode;
+    public CouponException(String message, HttpStatus statusCode) {
         super(message);
-    }
-
-    public CouponException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public CouponException(Throwable cause) {
-        super(cause);
-    }
-
-    public CouponException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+        this.statusCode = statusCode;
     }
 }

@@ -12,9 +12,6 @@ import java.util.List;
 public interface RequestedCouponMapper {
     RequestedCouponDTO toDto(Coupon coupon);
 
-    List<RequestedCouponDTO> toDto(List<Coupon> coupons);
-
     Coupon toEntity(RequestedCouponDTO couponDto);
 
-    List<Coupon> toEntity(List<RequestedCouponDTO> couponDto);
 }
