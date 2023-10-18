@@ -57,14 +57,13 @@ public class CouponResource {
 
     @GetMapping("/discount")
     public DiscountDTO calculateDiscount(@RequestParam String code, @RequestParam String customerEmail,
-                                         @RequestParam Long orderId, @RequestParam BigDecimal orderPrice) {
-        OrderRequestDTO orderRequestDTO = OrderRequestDTO.builder()
+                                         @RequestParam BigDecimal orderPrice) {
+        DiscountRequestDTO discountRequestDTO = DiscountRequestDTO.builder()
                 .code(code)
                 .customerEmail(customerEmail)
-                .orderId(orderId)
                 .orderPrice(orderPrice)
                 .build();
-        return couponService.calculateDiscount(orderRequestDTO);
+        return couponService.calculateDiscount(discountRequestDTO);
     }
 
     @PostMapping("/consumption")

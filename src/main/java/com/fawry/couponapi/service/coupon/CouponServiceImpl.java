@@ -83,12 +83,12 @@ public class CouponServiceImpl implements CouponService {
         checkIfCouponIsUsedByCustomer(coupon, validationRequestDto.getCustomerEmail());
     }
 
-    public DiscountDTO calculateDiscount(@Valid OrderRequestDTO orderRequestDTO) {
-        validateCouponCode(orderRequestDTO.getCode());
-        Coupon coupon = findCouponByCode(orderRequestDTO.getCode());
+    public DiscountDTO calculateDiscount(@Valid DiscountRequestDTO discountRequestDTO) {
+        validateCouponCode(discountRequestDTO.getCode());
+        Coupon coupon = findCouponByCode(discountRequestDTO.getCode());
         return DiscountDTO.builder()
                 .actualDiscount(calculateDiscount(
-                        orderRequestDTO.getOrderPrice(),
+                        discountRequestDTO.getOrderPrice(),
                         coupon.getValue(),
                         coupon.getType()))
                 .build();

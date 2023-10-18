@@ -24,6 +24,6 @@ public interface CouponService {
 
     String generateCouponCode();
 
-    DiscountDTO calculateDiscount(OrderRequestDTO orderRequestDTO);
+    DiscountDTO calculateDiscount(DiscountRequestDTO discountRequestDTO);
 
 }
