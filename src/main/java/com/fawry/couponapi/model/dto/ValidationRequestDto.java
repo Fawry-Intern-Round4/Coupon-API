@@ -17,6 +17,6 @@ public class ValidationRequestDto {
     @NotBlank(message = "Code is mandatory and should not be blank")
     private String code;
 
-    @Email
+    @Email(message = "Customer email should be valid")
     private String customerEmail;
 }

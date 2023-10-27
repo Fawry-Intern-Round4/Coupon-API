@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coupon-api
+spec:
+  selector:
+    matchLabels:
+      app: coupon-api
+  template:
+    metadata:
+      labels:
+        app: coupon-api
+    spec:
+      containers:
+      - name: coupon-api
+        image: amrmousa1682/coupon-api:latest
+        resources:
+          limits:
+            memory: "250Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
